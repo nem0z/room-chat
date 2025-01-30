@@ -10,7 +10,7 @@ func Start() {
 	store := storage.NewMemStore()
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /messages", GetMessages(store))
+	router.HandleFunc("GET /messages/{tag}", GetMessages(store))
 
 	router.HandleFunc("POST /message", PostMessage(store))
 

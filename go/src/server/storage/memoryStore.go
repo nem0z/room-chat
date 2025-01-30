@@ -1,23 +1,22 @@
 package storage
 
 type MemStore struct {
-	messages []Message
+	messages map[string][]Message
 }
 
 func NewMemStore() *MemStore {
 	return &MemStore{
-		messages: make([]Message, 0, 10),
+		messages: make(map[string][]Message),
 	}
 }
 
 func (store *MemStore) WriteOne(msg Message) error {
-	store.messages = append(store.messages, msg)
+	store.messages[msg.Tag] = append(store.messages[msg.Tag], msg)
 	return nil
 }
 
-func (store *MemStore) ReadAll() ([]Message, error) {
-	messages := make([]Message, len(store.messages))
-	copy(messages, store.messages)
-
+func (store *MemStore) ReadAll(tag string) ([]Message, error) {
+	messages := make([]Message, len(store.messages[tag]))
+	copy(messages, store.messages[tag])
 	return messages, nil
 }

@@ -1,8 +1,11 @@
 package storage
 
-type Message string
+type Message struct {
+	Tag  string `json:"tag"`
+	Data string `json:"data"`
+}
 
 type Storage interface {
 	WriteOne(msg Message) error
-	ReadAll() ([]Message, error)
+	ReadAll(tag string) ([]Message, error)
 }
