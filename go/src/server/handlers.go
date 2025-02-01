@@ -49,7 +49,7 @@ func PostMessage(store storage.Storage) handler {
 			return
 		}
 
-		if !crypto.VerifyWitness(msg.SenderPubKey, msg.Witness, []byte(msg.Data)) {
+		if !crypto.VerifyWitness(msg.PubKey, msg.Witness, []byte(msg.Data)) {
 			http.Error(w, "Witness is not valid", http.StatusBadRequest)
 			log.Println("Witness is not valid")
 			return

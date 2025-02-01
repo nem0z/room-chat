@@ -4,6 +4,8 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"math/big"
 )
@@ -36,4 +38,9 @@ func PubKeyFromBytes(bytes []byte) *ecdsa.PublicKey {
 		X:     new(big.Int).SetBytes(bytes[:paramLen]),
 		Y:     new(big.Int).SetBytes(bytes[paramLen:]),
 	}
+}
+
+func GetAlias(pubKey ecdsa.PublicKey) string {
+	hash := sha256.Sum256(PubKeyToBytes(pubKey))
+	return hex.EncodeToString(hash[:8])
 }
