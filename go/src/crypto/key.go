@@ -26,10 +26,14 @@ func PubKeyToBytes(pubKey ecdsa.PublicKey) []byte {
 }
 
 func PubKeyFromBytes(bytes []byte) *ecdsa.PublicKey {
-	len := curve.Params().BitSize / 8
+	paramLen := curve.Params().BitSize / 8
+	if paramLen > len(bytes) {
+		return nil
+	}
+
 	return &ecdsa.PublicKey{
 		Curve: curve,
-		X:     new(big.Int).SetBytes(bytes[:len]),
-		Y:     new(big.Int).SetBytes(bytes[len:]),
+		X:     new(big.Int).SetBytes(bytes[:paramLen]),
+		Y:     new(big.Int).SetBytes(bytes[paramLen:]),
 	}
 }
