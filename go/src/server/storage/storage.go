@@ -1,8 +1,10 @@
 package storage
 
 type Message struct {
-	Tag  string `json:"tag"`
-	Data string `json:"data"`
+	SenderPubKey []byte `json:"sender"`
+	Witness      []byte `json:"witness"`
+	Tag          string `json:"tag"`
+	Data         string `json:"data"`
 }
 
 type Storage interface {
