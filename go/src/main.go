@@ -1,15 +1,16 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
+	"context"
 	"fmt"
 	"log"
-	"net/http"
+
+	pb "github.com/nem0z/room-chat/src/grpc_server/.server"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/nem0z/room-chat/src/crypto"
 	"github.com/nem0z/room-chat/src/server"
-	"github.com/nem0z/room-chat/src/server/storage"
 )
 
 func Handle(err error) {
@@ -18,35 +19,41 @@ func Handle(err error) {
 	}
 }
 
-func sendPostRequest(url string, msg storage.Message) error {
-	jsonBytes, err := json.Marshal(msg)
+func sendPostRequestGRPC(url string, msg *pb.Message) error {
+	// 1. Establish a gRPC connection
+	// In a real application, you would likely have a more robust connection management
+	conn, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials())) // Use insecure credentials for development/testing. For production, use TLS.
 	if err != nil {
-		return fmt.Errorf("failed to marshal message: %w", err)
+		return fmt.Errorf("did not connect: %w", err)
+	}
+	defer conn.Close()
+
+	// 2. Create a gRPC client
+	c := pb.NewChatServiceClient(conn)
+
+	// 3. Call the gRPC method
+	ctx := context.Background() // You might want to add timeouts or other context options
+	resp, err := c.PostMessage(ctx, msg)
+	if err != nil {
+		return fmt.Errorf("could not post message: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBytes))
-	if err != nil {
-		return fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
+	// 4. Handle the response
+	if !resp.Success {
+		// Convert the enum to a string for a more informative error
+		errString := resp.ErrMessage
+		if resp.ErrCode != pb.ErrorCode_UNKNOWN {
+			errString = fmt.Sprintf("%v: %v", resp.ErrCode, resp.ErrMessage)
+		}
 
-	client := &http.Client{}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("request failed with status: %d => %v", resp.StatusCode, resp)
+		return fmt.Errorf("post message failed: %s", errString)
 	}
 
 	return nil
 }
 
 func main() {
-	go server.Start()
+	go server.Start(nil)
 
 	pKey, err := crypto.GenPKey()
 	Handle(err)
@@ -55,16 +62,18 @@ func main() {
 	witness, err := crypto.GenWitness(pKey, []byte(data))
 	Handle(err)
 
-	msg := storage.Message{
-		Alias:   crypto.GetAlias(pKey.PublicKey),
+	msg := &pb.Message{
 		PubKey:  crypto.PubKeyToBytes(pKey.PublicKey),
 		Witness: witness,
 		Tag:     "country",
 		Data:    data,
 	}
 
-	err = sendPostRequest("http://localhost:8080/message", msg)
+	grpcServerAddress := "localhost:50051"
+	err = sendPostRequestGRPC(grpcServerAddress, msg)
 	Handle(err)
+
+	fmt.Println("gRPC request sent successfully")
 
 	select {}
 }

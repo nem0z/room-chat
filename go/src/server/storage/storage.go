@@ -1,14 +1,8 @@
 package storage
 
-type Message struct {
-	Alias   string `json:"alias"`
-	PubKey  []byte `json:"pub_key"`
-	Witness []byte `json:"witness"`
-	Tag     string `json:"tag"`
-	Data    string `json:"data"`
-}
+import pb "github.com/nem0z/room-chat/src/grpc_server/.server"
 
 type Storage interface {
-	WriteOne(msg Message) error
-	ReadAll(tag string) ([]Message, error)
+	WriteOne(msg *pb.Message) error
+	ReadAll(tag string) ([]*pb.Message, error)
 }
