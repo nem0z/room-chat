@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/nem0z/room-chat/src/crypto"
-	pb "github.com/nem0z/room-chat/src/grpc_server/.server"
+	pb "github.com/nem0z/room-chat/src/grpc/chat"
 	"github.com/nem0z/room-chat/src/server/storage"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

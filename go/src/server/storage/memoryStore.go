@@ -1,6 +1,6 @@
 package storage
 
-import pb "github.com/nem0z/room-chat/src/grpc_server/.server"
+import pb "github.com/nem0z/room-chat/src/grpc/chat"
 
 type MemStore struct {
 	messages map[string][]*pb.Message

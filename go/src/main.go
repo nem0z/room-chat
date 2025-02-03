@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	pb "github.com/nem0z/room-chat/src/grpc_server/.server"
+	pb "github.com/nem0z/room-chat/src/grpc/chat"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
