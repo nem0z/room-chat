@@ -52,6 +52,7 @@ func (s *Server) GetMessagesByTag(ctx context.Context, req *pb.GetMessagesReq) (
 
 	return &pb.GetMessagesResp{
 		Messages: messages,
+		Success:  true,
 	}, nil
 }
 
